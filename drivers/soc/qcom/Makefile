@@ -110,3 +110,8 @@ obj-$(CONFIG_QTI_CRYPTO_TZ) += crypto-qti-tz.o
 obj-$(CONFIG_QTI_HW_KEY_MANAGER) += hwkm_qti.o
 hwkm_qti-y += hwkm.o
 obj-$(CONFIG_MSM_BAM_DMUX) += bam_dmux.o
+
+#+ bug697299,zhaizhenhong.wt,add,20211110,add serial_num/secboot_fuse_reg
+obj-y += serial_num.o
+obj-y += secboot_fuse.o
+#- bug697299,zhaizhenhong.wt,add,20211110,add serial_num/secboot_fuse_reg

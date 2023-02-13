@@ -36,7 +36,12 @@
 
 #include "sdhci.h"
 #include "sdhci-pci.h"
-
+/*
+#undef    dev_dbg
+#undef    pr_debug
+#define   dev_dbg    dev_err
+#define   pr_debug   pr_err
+*/
 static void sdhci_pci_hw_reset(struct sdhci_host *host);
 
 #ifdef CONFIG_PM_SLEEP

@@ -38,7 +38,12 @@
 #define MMC_DEVFRQ_DEFAULT_UP_THRESHOLD 35
 #define MMC_DEVFRQ_DEFAULT_DOWN_THRESHOLD 5
 #define MMC_DEVFRQ_DEFAULT_POLLING_MSEC 100
-
+/*
+#undef    dev_dbg
+#undef    pr_debug
+#define   dev_dbg    dev_err
+#define   pr_debug   pr_err
+*/
 static DEFINE_IDA(mmc_host_ida);
 
 static void mmc_host_classdev_release(struct device *dev)

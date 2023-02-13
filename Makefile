@@ -693,6 +693,12 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, int-in-bool-context)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
 
+#+ ExtR oak-4542, tankaikun@wt, add 20220207, add kernel ato conctrol
+ifdef CONFIG_WT_COMPILE_FACTORY_VERSION
+KBUILD_CFLAGS += -DWT_COMPILE_FACTORY_VERSION
+endif
+#- ExtR oak-4542, tankaikun@wt, add 20220207, add kernel ato conctrol 
+
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS   += -Os
 else

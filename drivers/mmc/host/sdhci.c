@@ -51,7 +51,12 @@
 
 #define SDHCI_DBG_DUMP_RS_INTERVAL (10 * HZ)
 #define SDHCI_DBG_DUMP_RS_BURST 2
-
+/*
+#undef    dev_dbg
+#undef    pr_debug
+#define   dev_dbg    dev_err
+#define   pr_debug   pr_err
+*/
 static unsigned int debug_quirks = 0;
 static unsigned int debug_quirks2;
 
@@ -1378,6 +1383,13 @@ void sdhci_send_command(struct sdhci_host *host, struct mmc_command *cmd)
 		udelay(1);
 	}
 
+/* huaqin add for SD card bringup by liufurong at 20190201 start */
+#ifdef CONFIG_MMC_SDHCI_BH201
+	if (cmd->sw_cmd_timeout) {
+		timeout = jiffies + msecs_to_jiffies(cmd->sw_cmd_timeout);
+	}
+#endif
+/* huaqin add for SD card bringup by liufurong at 20190201 end */
 	host->cmd = cmd;
 	if (sdhci_data_line_cmd(cmd)) {
 		WARN_ON(host->data_cmd);
@@ -2735,6 +2747,11 @@ int sdhci_execute_tuning(struct mmc_host *mmc, u32 opcode)
 		break;
 
 	case MMC_TIMING_UHS_SDR50:
+/* Huaqin add for JD2020-392 by xudongfang at 2019/02/20 start */
+#ifdef CONFIG_MMC_SDHCI_BH201
+		host->flags |= SDHCI_SDR50_NEEDS_TUNING;
+#endif
+/* Huaqin add for JD2020-392 by xudongfang at 2019/02/20 end */
 		if (host->flags & SDHCI_SDR50_NEEDS_TUNING)
 			break;
 		/* FALLTHROUGH */
@@ -3171,7 +3188,11 @@ static void sdhci_cmd_irq(struct sdhci_host *host, u32 intmask, u32 *intmask_p)
 
 	trace_mmc_cmd_rw_end(host->cmd->opcode, intmask,
 				sdhci_readl(host, SDHCI_RESPONSE));
-
+/* huaqin add for SD card bringup by liufurong at 20190201 start */
+#ifdef CONFIG_MMC_SDHCI_BH201
+	host->cmd->err_int_mask = intmask;
+#endif
+/* huaqin add for SD card bringup by liufurong at 20190201 end */
 	if (intmask & (SDHCI_INT_TIMEOUT | SDHCI_INT_CRC |
 		       SDHCI_INT_END_BIT | SDHCI_INT_INDEX |
 		       SDHCI_INT_AUTO_CMD_ERR)) {

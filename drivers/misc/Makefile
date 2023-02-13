@@ -77,3 +77,6 @@ obj-$(CONFIG_QTI_MAXIM_FAN_CONTROLLER) += max31760.o
 obj-$(CONFIG_QTI_XR_SMRTVWR_MISC) += qxr-stdalonevwr.o
 obj-$(CONFIG_FPR_FPC)		+= fpr_FingerprintCard/
 obj-y                           += qrc/
+# //+bug692121,shenwenbin.wt,ADD,20211013,add TP hardware info
+obj-y += hardware_info.o
+# //-bug692121,shenwenbin.wt,ADD,20211013,add TP hardware info

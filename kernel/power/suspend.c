@@ -35,7 +35,9 @@
 #include <linux/wakeup_reason.h>
 
 #include "power.h"
-
+//+OAK-457 huangxuyun@wingtech.com, add the kernel debug log
+#include <linux/rtc.h>
+//-OAK-457 huangxuyun@wingtech.com, add the kernel debug log
 const char * const pm_labels[] = {
 	[PM_SUSPEND_TO_IDLE] = "freeze",
 	[PM_SUSPEND_STANDBY] = "standby",
@@ -616,6 +618,19 @@ static int enter_state(suspend_state_t state)
 	return error;
 }
 
+//+OAK-457 huangyuxun.wt, add, 20211110, add suspend time marker
+static void pm_suspend_marker(char *annotation)
+{
+	struct timespec ts;
+	struct rtc_time tm;
+
+	getnstimeofday(&ts);
+	rtc_time_to_tm(ts.tv_sec, &tm);
+	pr_info("suspend %s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
+		annotation, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
+}
+//-OAK-457, huangyuxun.wt, add, 20211110, add suspend time marker
 /**
  * pm_suspend - Externally visible function for suspending the system.
  * @state: System sleep state to enter.
@@ -629,6 +644,9 @@ int pm_suspend(suspend_state_t state)
 
 	if (state <= PM_SUSPEND_ON || state >= PM_SUSPEND_MAX)
 		return -EINVAL;
+	//+OAK-457, huangyuxun.wt, add, 20211110, add suspend time marker	
+	pm_suspend_marker("enter");
+	//-OAK-457, huangyuxun.wt, add, 20211110, add suspend time marker
 
 	pr_info("suspend entry (%s)\n", mem_sleep_labels[state]);
 	error = enter_state(state);
@@ -639,6 +657,9 @@ int pm_suspend(suspend_state_t state)
 		suspend_stats.success++;
 	}
 	pr_info("suspend exit\n");
+	//+OAK-457, huangyuxun.wt, add, 20211110, add suspend time marker     
+        pm_suspend_marker("enter");
+	//-OAK-457, huangyuxun.wt, add, 20211110, add suspend time marker
 	return error;
 }
 EXPORT_SYMBOL(pm_suspend);

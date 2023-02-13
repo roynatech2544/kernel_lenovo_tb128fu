@@ -52,6 +52,7 @@
 #include <asm/exception.h>
 #include <asm/system_misc.h>
 #include <asm/sysreg.h>
+#include <wt_sys/wt_boot_reason.h>
 
 static const char *handler[]= {
 	"Synchronous Abort",
@@ -209,7 +210,8 @@ static int __die(const char *str, int err, struct pt_regs *regs)
 		 TASK_COMM_LEN, tsk->comm, task_pid_nr(tsk),
 		 end_of_stack(tsk));
 	show_regs(regs);
-
+        // CHK, douyingnan.wt, ADD, 20211222, dump display
+        wt_btreason_log_save("Process %.*s (pid: %d)\n", TASK_COMM_LEN, tsk->comm, task_pid_nr(tsk));
 	if (!user_mode(regs))
 		dump_instr(KERN_EMERG, regs);
 

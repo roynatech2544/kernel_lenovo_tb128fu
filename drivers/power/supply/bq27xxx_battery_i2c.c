@@ -21,6 +21,9 @@
 
 #include <linux/power/bq27xxx_battery.h>
 
+//OAK-63, lishuwen.wt,ADD,20211111, bringup charging temperature
+#define MM8013C10_NAME		"bms"
+
 static DEFINE_IDR(battery_id);
 static DEFINE_MUTEX(battery_mutex);
 
@@ -170,7 +173,8 @@ static int bq27xxx_battery_i2c_probe(struct i2c_client *client,
 	di->id = num;
 	di->dev = &client->dev;
 	di->chip = id->driver_data;
-	di->name = name;
+	//OAK-63, lishuwen.wt,ADD,20211111, bringup charging temperature
+	di->name = MM8013C10_NAME;
 
 	di->bus.read = bq27xxx_battery_i2c_read;
 	di->bus.write = bq27xxx_battery_i2c_write;

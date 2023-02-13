@@ -29,7 +29,12 @@
 #include "bus.h"
 
 #define to_mmc_driver(d)	container_of(d, struct mmc_driver, drv)
-
+/*
+#undef    dev_dbg
+#undef    pr_debug
+#define   dev_dbg    dev_err
+#define   pr_debug   pr_err
+*/
 static ssize_t type_show(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {

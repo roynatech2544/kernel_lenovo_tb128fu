@@ -59,7 +59,12 @@
 #define O2_SD_VENDOR_SETTING	0x110
 #define O2_SD_VENDOR_SETTING2	0x1C8
 #define O2_SD_HW_TUNING_DISABLE	BIT(4)
-
+/*
+#undef    dev_dbg
+#undef    pr_debug
+#define   dev_dbg    dev_err
+#define   pr_debug   pr_err
+*/
 static void sdhci_o2_set_tuning_mode(struct sdhci_host *host)
 {
 	u16 reg;

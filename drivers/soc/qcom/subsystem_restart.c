@@ -35,6 +35,7 @@
 #include <linux/timer.h>
 
 #include "peripheral-loader.h"
+#include <wt_sys/wt_boot_reason.h>
 
 #define DISABLE_SSR 0x9889deed
 /* If set to 0x9889deed, call to subsystem_restart_dev() returns immediately */
@@ -1244,6 +1245,8 @@ int subsystem_restart_dev(struct subsys_device *dev)
 									name);
 		return 0;
 	}
+        // CHK, douyingnan.wt, ADD, 20211222, dump display
+        wt_btreason_set_subsystem_magic(name, dev->restart_level);
 
 	switch (dev->restart_level) {
 

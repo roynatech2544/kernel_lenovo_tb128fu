@@ -3222,7 +3222,10 @@ EXPORT_SYMBOL_GPL(clk_set_flags);
 
 static struct dentry *rootdir;
 static int inited = 0;
-static u32 debug_suspend;
+//+OAK-457, huangyuxun.wt, modify, 20211110, add kernel debug log
+//static u32 debug_suspend;
+static u32 debug_suspend=1;
+//-OAK-457, huangyuxun.wt, modify, 20211110, add kernel debug log
 static DEFINE_MUTEX(clk_debug_lock);
 static HLIST_HEAD(clk_debug_list);
 

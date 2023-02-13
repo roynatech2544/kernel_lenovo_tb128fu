@@ -123,6 +123,8 @@ static void scsi_disk_release(struct device *cdev);
 static void sd_print_sense_hdr(struct scsi_disk *, struct scsi_sense_hdr *);
 static void sd_print_result(const struct scsi_disk *, const char *, int);
 
+extern int ufs_ffu(struct scsi_device *sdev) __attribute__((weak));
+
 static DEFINE_IDA(sd_index_ida);
 
 /* This semaphore is used to mediate the 0->1 reference get in the
@@ -133,6 +135,10 @@ static DEFINE_MUTEX(sd_ref_mutex);
 static struct kmem_cache *sd_cdb_cache;
 static mempool_t *sd_cdb_pool;
 static mempool_t *sd_page_pool;
+
+//bug 550150, liubaolin, 20200508, add ufs flash name, start
+extern struct gendisk *wt_ufs_disk[];
+//bug 550150, liubaolin, 20200508, add ufs flash name, end
 
 static const char *sd_cache_types[] = {
 	"write through", "none", "write back",
@@ -3238,6 +3244,7 @@ static void sd_probe_async(void *data, async_cookie_t cookie)
 	gd->private_data = &sdkp->driver;
 	gd->queue = sdkp->device->request_queue;
 
+	printk("Murphy.liu note:kook---sd_enter-4\n");
 	/* defaults, until the device tells us otherwise */
 	sdp->sector_size = 512;
 	sdkp->capacity = 0;
@@ -3252,6 +3259,7 @@ static void sd_probe_async(void *data, async_cookie_t cookie)
 
 	sd_revalidate_disk(gd);
 
+	printk("Murphy.liu note:kook---sd_enter-5\n");
 	gd->flags = GENHD_FL_EXT_DEVT;
 	if (sdp->removable) {
 		gd->flags |= GENHD_FL_REMOVABLE;
@@ -3266,6 +3274,7 @@ static void sd_probe_async(void *data, async_cookie_t cookie)
 	if (sdkp->capacity)
 		sd_dif_config_host(sdkp);
 
+    	printk("Murphy.liu note:kook---sd_enter-6\n");
 	sd_revalidate_disk(gd);
 
 	if (sdkp->security) {
@@ -3274,9 +3283,18 @@ static void sd_probe_async(void *data, async_cookie_t cookie)
 			sd_printk(KERN_NOTICE, sdkp, "supports TCG Opal\n");
 	}
 
+    	printk("kook---ffu_pre\n");
+    	/*for some device , boot LUN can not support write buffer cmd. We shall check LUN config for every project*/
+    	if (ufs_ffu && sdp->lun == 0) {
+        	printk("kook---ffu_enter\n");
+        	ufs_ffu(sdp);
+    	}
+
 	scsi_autopm_put_device(sdp);
 	put_device(&sdkp->dev);
 }
+
+
 
 /**
  *	sd_probe - called during driver initialization and whenever a
@@ -3296,14 +3314,19 @@ static void sd_probe_async(void *data, async_cookie_t cookie)
  *	Assume sd_probe is not re-entrant (for time being)
  *	Also think about sd_probe() and sd_remove() running coincidentally.
  **/
+extern struct gendisk *ufs_disk_partition; //+OAK-68,chenjindong.wt,ADD,20211208,read oem partitions info
 static int sd_probe(struct device *dev)
 {
 	struct scsi_device *sdp = to_scsi_device(dev);
 	struct scsi_disk *sdkp;
 	struct gendisk *gd;
+    	//bug 550150, liubaolin, 20200508, add ufs flash name, start
+    	static int num = 0;
+    	//bug 550150, liubaolin, 20200508, add ufs flash name, end
 	int index;
 	int error;
 
+    	printk("Murphy.liu note:kook---sd_enter\n");
 	scsi_autopm_get_device(sdp);
 	error = -ENODEV;
 	if (sdp->type != TYPE_DISK &&
@@ -3340,6 +3363,12 @@ static int sd_probe(struct device *dev)
 		goto out_free_index;
 	}
 
+    printk("Murphy.liu note:kook---sd_enter_1\n");
+    //bug 550150, liubaolin, 20200508, add ufs flash name, start
+    if(num < SD_NUM)
+        wt_ufs_disk[num++] = gd;
+    //bug 550150, liubaolin, 20200508, add ufs flash name, end
+
 	sdkp->device = sdp;
 	sdkp->driver = &sd_template;
 	sdkp->disk = gd;
@@ -3360,16 +3389,22 @@ static int sd_probe(struct device *dev)
 	sdkp->dev.class = &sd_disk_class;
 	dev_set_name(&sdkp->dev, "%s", dev_name(dev));
 
+	printk("Murphy.liu note:kook---sd_enter-2\n");
 	error = device_add(&sdkp->dev);
 	if (error)
 		goto out_free_index;
 
+	printk("Murphy.liu note:kook---sd_enter-3\n");
 	get_device(dev);
 	dev_set_drvdata(dev, sdkp);
 
 	get_device(&sdkp->dev);	/* prevent release before async_schedule */
 	async_schedule_domain(sd_probe_async, sdkp, &scsi_sd_probe_domain);
-
+        //+OAK-68,chenjindong.wt,ADD,20211208,read oem partitions info
+       if (!strcmp(sdkp->disk->disk_name, "sda")){
+          ufs_disk_partition=sdkp->disk;
+          }
+         //-OAK-68,chenjindong.wt,ADD,20211208,read oem partitions info
 	return 0;
 
  out_free_index:

@@ -77,6 +77,12 @@ MODULE_ALIAS("mmc:block");
 
 #define mmc_req_rel_wr(req)	((req->cmd_flags & REQ_FUA) && \
 				  (rq_data_dir(req) == WRITE))
+/*
+#undef    dev_dbg
+#undef    pr_debug
+#define   dev_dbg    dev_err
+#define   pr_debug   pr_err
+*/
 static DEFINE_MUTEX(block_mutex);
 
 /*
@@ -122,6 +128,11 @@ struct mmc_blk_data {
 #define MMC_BLK_SECDISCARD	BIT(3)
 #define MMC_BLK_CQE_RECOVERY	BIT(4)
 #define MMC_BLK_PARTSWITCH     BIT(5)
+
+#undef    dev_dbg
+#undef    pr_debug
+#define   dev_dbg    dev_err
+#define   pr_debug   pr_err
 
 	/*
 	 * Only set in main mmc_blk_data associated

@@ -31,6 +31,7 @@
 #include <linux/debugfs.h>
 #include <asm/sections.h>
 #include <soc/qcom/minidump.h>
+#include <wt_sys/wt_boot_reason.h>
 
 #define PANIC_TIMER_STEP 100
 #define PANIC_BLINK_SPD 18
@@ -184,6 +185,7 @@ void panic(const char *fmt, ...)
 	if (vendor_panic_cb)
 		vendor_panic_cb(0);
 	pr_emerg("Kernel panic - not syncing: %s\n", buf);
+        wt_btreason_log_save("Kernel panic - not syncing: %s\n", buf);
 #ifdef CONFIG_DEBUG_BUGVERBOSE
 	/*
 	 * Avoid nested stack-dumping if a panic occurs during oops processing

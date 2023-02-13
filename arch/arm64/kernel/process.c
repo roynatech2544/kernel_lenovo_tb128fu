@@ -61,6 +61,7 @@
 #include <asm/processor.h>
 #include <asm/scs.h>
 #include <asm/stacktrace.h>
+#include <wt_sys/wt_boot_reason.h>
 
 #ifdef CONFIG_STACKPROTECTOR
 #include <linux/stackprotector.h>
@@ -302,6 +303,8 @@ void __show_regs(struct pt_regs *regs)
 	}
 
 	printk("sp : %016llx\n", sp);
+        // CHK, douyingnan.wt, ADD, 20211222, dump display
+        wt_brlog_save_pc_lr_value(regs->pc, lr);
 
 	i = top_reg;
 
